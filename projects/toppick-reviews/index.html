@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TopPick Reviews · Habeeb E Sadeed</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2214%22 fill=%22%2316181d%22/%3E%3Ctext x=%2232%22 y=%2243%22 text-anchor=%22middle%22 font-family=%22Arial%22 font-weight=%22700%22 font-size=%2228%22 fill=%22%23ff8a3d%22%3EHS%3C/text%3E%3C/svg%3E">
+<meta name="description" content="TopPick Reviews: an Amazon affiliate review website with an admin panel, built with Laravel 12 and MySQL.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a hiring manager's case file. Thesis + product shot up top, a spec strip,
+   then three screenshot tours (site, admin, phone) and the engineering notes behind them. */
+:root {
+  --paper: #f6f4f1;
+  --surface: #ffffff;
+  --ink: #16181d;
+  --muted: #5d6270;
+  --line: #e2ddd6;
+  --accent: #e8590c;
+  --accent-soft: #fdebdf;
+  --frame: #20232b;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #121419; --surface: #1a1d24; --ink: #eceae6; --muted: #a2a6b2;
+    --line: #2c3039; --accent: #ff8a3d; --accent-soft: #3a2416; --frame: #0b0c10;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #121419; --surface: #1a1d24; --ink: #eceae6; --muted: #a2a6b2;
+  --line: #2c3039; --accent: #ff8a3d; --accent-soft: #3a2416; --frame: #0b0c10;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font: 400 18px/1.6 var(--font-body);
+}
+img { max-width: 100%; height: auto; display: block; }
+a { color: var(--accent); }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+
+.topnav { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-top: 22px; font-size: 16px; }
+.topnav a { color: var(--ink); text-decoration: none; font-weight: 600; }
+.topnav a:hover { color: var(--accent); }
+.topnav .back { font: 600 13px/1 var(--font-mono); letter-spacing: .04em; color: var(--muted); }
+.wrap { width: min(1160px, 100% - 40px); margin-inline: auto; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; letter-spacing: -0.02em; }
+.label {
+  font: 600 12px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Hero */
+.hero { padding: 40px 0 40px; display: grid; gap: 36px; }
+.hero-top { display: grid; grid-template-columns: 1.15fr .85fr; gap: 40px; align-items: end; }
+.hero h1 { font-size: clamp(48px, 8vw, 104px); font-weight: 800; line-height: .92; }
+.hero h1 span { color: var(--accent); }
+.thesis { font-size: 21px; color: var(--muted); max-width: 34ch; margin: 0; }
+.thesis strong { color: var(--ink); font-weight: 600; }
+
+.browser {
+  background: var(--frame); border-radius: 14px; padding: 0 0 0; overflow: hidden;
+  box-shadow: 0 30px 60px -30px rgba(20, 20, 30, .45), 0 0 0 1px var(--line);
+}
+.browser-bar { display: flex; align-items: center; gap: 8px; padding: 11px 14px; }
+.browser-bar i { width: 11px; height: 11px; border-radius: 50%; background: #3a3e48; }
+.browser-bar i:first-child { background: #ff5f57; } .browser-bar i:nth-child(2) { background: #febc2e; } .browser-bar i:nth-child(3) { background: #28c840; }
+.browser-bar span {
+  margin-left: 10px; flex: 1; max-width: 360px; background: #2c3039; color: #a2a6b2;
+  font: 400 12px/1 var(--font-mono); padding: 7px 12px; border-radius: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* Spec strip */
+.spec {
+  display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line);
+  border-radius: 14px; background: var(--surface);
+}
+.spec div { padding: 18px 20px; display: grid; gap: 8px; align-content: start; }
+.spec div + div { border-left: 1px solid var(--line); }
+.spec p { margin: 0; font-size: 16px; line-height: 1.45; }
+
+/* Sections */
+section { padding: 56px 0; border-top: 1px solid var(--line); }
+.sec-head { display: grid; grid-template-columns: 260px 1fr; gap: 32px; margin-bottom: 32px; align-items: baseline; }
+.sec-head h2 { font-size: clamp(30px, 4vw, 44px); font-weight: 700; line-height: 1.05; }
+.sec-head p { margin: 0; color: var(--muted); max-width: 62ch; }
+.num { font: 600 13px/1 var(--font-mono); color: var(--accent); display: block; margin-bottom: 10px; }
+
+/* Feature columns */
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.col { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 26px 28px; }
+.col h3 { font-size: 24px; font-weight: 700; margin-bottom: 14px; }
+.col ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.col li { padding-left: 22px; position: relative; font-size: 17px; line-height: 1.5; }
+.col li::before { content: ""; position: absolute; left: 2px; top: .62em; width: 8px; height: 8px; border-radius: 2px; background: var(--accent); }
+.col li b { font-weight: 600; }
+
+/* Galleries */
+.shots { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px 24px; }
+.shots figure:first-child { grid-column: 1 / -1; }
+figure { margin: 0; display: grid; gap: 12px; align-content: start; }
+figcaption { font-size: 16px; color: var(--muted); line-height: 1.45; }
+figcaption b { color: var(--ink); font-weight: 600; }
+.zoom { padding: 0; border: 0; background: none; cursor: zoom-in; display: block; width: 100%; text-align: left; border-radius: 14px; }
+.zoom .browser { transition: transform .25s ease, box-shadow .25s ease; }
+.zoom:hover .browser { transform: translateY(-3px); box-shadow: 0 36px 70px -30px rgba(20, 20, 30, .55), 0 0 0 1px var(--accent); }
+
+.phones { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
+.phone {
+  background: var(--frame); border-radius: 30px; padding: 9px; box-shadow: 0 24px 50px -28px rgba(20, 20, 30, .5);
+  transition: transform .25s ease;
+}
+.phone img { border-radius: 22px; aspect-ratio: 780 / 1688; object-fit: cover; object-position: top; width: 100%; }
+.zoom:hover .phone { transform: translateY(-4px); }
+
+/* Engineering notes */
+.notes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); overflow: hidden; }
+.note { padding: 24px 26px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); display: grid; gap: 8px; align-content: start; }
+.note:nth-child(3n) { border-right: 0; }
+.note:nth-last-child(-n+3) { border-bottom: 0; }
+.note h3 { font-size: 20px; font-weight: 700; line-height: 1.2; }
+.note p { margin: 0; font-size: 16px; color: var(--muted); line-height: 1.5; }
+code { font: 400 .88em var(--font-mono); background: var(--accent-soft); color: var(--ink); padding: 1px 6px; border-radius: 5px; }
+
+.stack { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+.stack span { font: 400 14px/1 var(--font-mono); border: 1px solid var(--line); background: var(--surface); padding: 9px 12px; border-radius: 8px; }
+
+.tables { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 8px 18px; font: 400 14px/1.5 var(--font-mono); color: var(--muted); }
+.tables b { color: var(--ink); font-weight: 600; }
+
+/* Closing */
+.closing { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; background: var(--ink); color: var(--paper); border-radius: 18px; padding: 36px 40px; }
+.closing h2 { font-size: clamp(26px, 3.4vw, 38px); font-weight: 700; }
+.closing p { margin: 8px 0 0; color: color-mix(in srgb, var(--paper) 72%, transparent); max-width: 60ch; }
+.closing .label { color: var(--accent); }
+footer { padding: 28px 0 48px; color: var(--muted); font-size: 15px; }
+
+/* Lightbox */
+dialog { border: 0; padding: 0; background: transparent; max-width: 96vw; max-height: 94vh; }
+dialog::backdrop { background: rgba(8, 9, 12, .86); }
+dialog img { max-width: 96vw; max-height: 86vh; width: auto; border-radius: 10px; margin-inline: auto; }
+dialog p { color: #e8e6e2; text-align: center; margin: 12px 0 0; font-size: 16px; }
+.close { position: fixed; top: 16px; right: 16px; background: #fff; color: #16181d; border: 0; border-radius: 999px; font: 600 15px/1 var(--font-body); padding: 10px 16px; cursor: pointer; }
+
+@media (max-width: 900px) {
+  .hero-top, .sec-head, .cols { grid-template-columns: 1fr; }
+  .sec-head { gap: 12px; }
+  .spec { grid-template-columns: 1fr 1fr; }
+  .spec div:nth-child(3) { border-left: 0; }
+  .spec div:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .notes { grid-template-columns: 1fr 1fr; }
+  .note { border-right: 1px solid var(--line) !important; border-bottom: 1px solid var(--line) !important; }
+  .note:nth-child(2n) { border-right: 0 !important; }
+  .phones { grid-template-columns: 1fr 1fr; }
+  .closing { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  body { font-size: 17px; }
+  .hero { padding-top: 40px; }
+  .shots, .notes { grid-template-columns: 1fr; }
+  .note { border-right: 0 !important; }
+  .spec { grid-template-columns: 1fr; }
+  .spec div + div { border-left: 0; border-top: 1px solid var(--line); }
+  .col { padding: 22px; }
+  .closing { padding: 28px 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+</style>
+</head>
+<body>
+<nav class="wrap topnav" aria-label="Site"><a class="back" href="../../">&larr; All projects</a><a href="../../">Habeeb E Sadeed</a></nav>
+
+<header class="wrap hero">
+  <div class="hero-top">
+    <div>
+      <p class="label" style="margin:0 0 18px">Project case study · Laravel 12 · 2026</p>
+      <h1>TopPick<br><span>Reviews</span></h1>
+    </div>
+    <p class="thesis">An Amazon affiliate review website with its own <strong>admin panel</strong>. Products, reviews, videos and <strong>one-click landing pages</strong> are managed by the owner and appear on the site immediately.</p>
+  </div>
+
+  <button class="zoom" type="button" data-full="img/01-home.webp" data-cap="Home page: hero search, editor's picks and category tiles.">
+    <div class="browser">
+      <div class="browser-bar"><i></i><i></i><i></i><span>toppick-reviews / home</span></div>
+      <img src="img/01-home.webp" width="1440" height="900" alt="TopPick Reviews home page with a dark hero, a search box and three product cards">
+    </div>
+  </button>
+
+  <div class="spec">
+    <div><span class="label">Project by</span><p>Habeeb E Sadeed</p></div>
+    <div><span class="label">Back end</span><p>Laravel 12, PHP 8.3, MySQL / MariaDB</p></div>
+    <div><span class="label">Front end</span><p>Blade, Tailwind CSS, Alpine.js, Trix editor</p></div>
+    <div><span class="label">Source code</span><p>Private GitHub repository, access on request</p></div>
+  </div>
+</header>
+
+<main>
+  <section class="wrap" id="features">
+    <div class="sec-head">
+      <h2><span class="num">01</span>What it does</h2>
+      <p>Two sides of one application. Visitors browse reviews and click through to Amazon; the owner runs everything from a password-protected admin area with no code changes.</p>
+    </div>
+    <div class="cols">
+      <div class="col">
+        <h3>For visitors</h3>
+        <ul>
+          <li><b>Instant search</b> with photo suggestions while typing, and a full-screen search on phones.</li>
+          <li><b>Category pages</b> with subcategory tabs, plus rating, brand and sort filters that update without a page reload.</li>
+          <li><b>Review pages</b> with a swipeable photo gallery, pros and cons, the full article and any number of YouTube videos.</li>
+          <li><b>Landing pages</b> for a single product or a ranked "Best of" guide for a category.</li>
+          <li><b>Recently viewed</b> products, a share button and a sticky "Check Price" bar on phones.</li>
+          <li><b>Amazon policy compliant:</b> disclosure on every page, no prices, ratings shown as "Our score".</li>
+        </ul>
+      </div>
+      <div class="col">
+        <h3>For the owner</h3>
+        <ul>
+          <li><b>Dashboard</b> with a 7-day chart of clicks to Amazon and the most-clicked products.</li>
+          <li><b>Categories</b> with one level of subcategories: add, edit, delete, reorder, show or hide.</li>
+          <li><b>Products</b> with multiple photos, a rich-text review, pros and cons, badges, SEO fields and YouTube videos.</li>
+          <li><b>Quick rating edits</b> straight from the product list, saved without leaving the page.</li>
+          <li><b>One-click landing pages</b> from any product or category, with hand-picked and ranked products.</li>
+          <li><b>Settings</b> for the site name, home page text, Amazon tracking ID and admin login.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" id="site">
+    <div class="sec-head">
+      <h2><span class="num">02</span>The public site</h2>
+      <p>Click any screen to see it full size. Products shown are sample data.</p>
+    </div>
+    <div class="shots">
+      <figure>
+        <button class="zoom" type="button" data-full="img/03-product-review.webp" data-cap="Review page: gallery, our score, pros and cons, and the Check Price button.">
+          <div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>/review/…</span></div>
+          <img src="img/03-product-review.webp" width="1440" height="900" alt="Product review page with photo gallery and pros and cons"></div>
+        </button>
+        <figcaption><b>Review page.</b> Photo gallery with a full-screen viewer, "Our score", pros and cons, and a tracked link to Amazon.</figcaption>
+      </figure>
+      <figure>
+        <button class="zoom" type="button" data-full="img/02-category.webp" data-cap="Category page with subcategory tabs and live filters.">
+          <div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>/category/kitchen-gadgets</span></div>
+          <img src="img/02-category.webp" width="1440" height="900" alt="Category page with filter chips and a product grid"></div>
+        </button>
+        <figcaption><b>Category page.</b> Filters and sorting reload only the product list, and the URL updates so results can be shared.</figcaption>
+      </figure>
+      <figure>
+        <button class="zoom" type="button" data-full="img/05-live-search.webp" data-cap="Live search suggestions appear while typing.">
+          <div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>/search?q=…</span></div>
+          <img src="img/05-live-search.webp" width="1440" height="620" alt="Search box showing live product suggestions"></div>
+        </button>
+        <figcaption><b>Live search.</b> Suggestions with photo, brand and score.</figcaption>
+      </figure>
+      <figure>
+        <button class="zoom" type="button" data-full="img/04-landing-page.webp" data-cap="Generated landing page.">
+          <div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>/lp/…</span></div>
+          <img src="img/04-landing-page.webp" width="1440" height="900" alt="Landing page with a headline and ranked products"></div>
+        </button>
+        <figcaption><b>Landing page.</b> Generated in one click, with its own headline, accent colour and ranked product list.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="wrap" id="admin">
+    <div class="sec-head">
+      <h2><span class="num">03</span>The admin panel</h2>
+      <p>Everything on the public site is managed here. Changes are live as soon as they are saved.</p>
+    </div>
+    <div class="shots">
+      <figure>
+        <button class="zoom" type="button" data-full="img/08-admin-product-editor.webp" data-cap="Product editor: photos, review article, pros and cons, videos and SEO.">
+          <div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>/admin/products/…/edit</span></div>
+          <img src="img/08-admin-product-editor.webp" width="1440" height="900" alt="Admin product editor form"></div>
+        </button>
+        <figcaption><b>Product editor.</b> Photo upload with a choice of main photo, a rich-text review, and a list of YouTube videos that can be reordered.</figcaption>
+      </figure>
+      <figure>
+        <button class="zoom" type="button" data-full="img/06-admin-dashboard.webp" data-cap="Dashboard with clicks to Amazon over 7 days.">
+          <div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>/admin</span></div>
+          <img src="img/06-admin-dashboard.webp" width="1440" height="900" alt="Admin dashboard with a click chart"></div>
+        </button>
+        <figcaption><b>Dashboard.</b> Clicks to Amazon by day, top products and page views.</figcaption>
+      </figure>
+      <figure>
+        <button class="zoom" type="button" data-full="img/07-admin-products.webp" data-cap="Product list with inline rating editing.">
+          <div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>/admin/products</span></div>
+          <img src="img/07-admin-products.webp" width="1440" height="900" alt="Admin product list table"></div>
+        </button>
+        <figcaption><b>Products.</b> Filter by category and change a rating in place.</figcaption>
+      </figure>
+      <figure>
+        <button class="zoom" type="button" data-full="img/09-admin-categories.webp" data-cap="Category tree with subcategories.">
+          <div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>/admin/categories</span></div>
+          <img src="img/09-admin-categories.webp" width="1440" height="900" alt="Admin category list with subcategories"></div>
+        </button>
+        <figcaption><b>Categories.</b> Parent and child categories in one tree.</figcaption>
+      </figure>
+      <figure>
+        <button class="zoom" type="button" data-full="img/10-admin-landing-editor.webp" data-cap="Landing page editor with automatic or hand-picked products.">
+          <div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>/admin/landing-pages/…/edit</span></div>
+          <img src="img/10-admin-landing-editor.webp" width="1440" height="900" alt="Admin landing page editor"></div>
+        </button>
+        <figcaption><b>Landing page editor.</b> Choose automatic products or hand-pick and rank them.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="wrap" id="phone">
+    <div class="sec-head">
+      <h2><span class="num">04</span>On a phone</h2>
+      <p>The layout is designed for phones first: horizontal product cards, swipeable rows, a full-screen search and a sticky buy bar.</p>
+    </div>
+    <div class="phones">
+      <figure>
+        <button class="zoom" type="button" data-full="img/11-mobile-home.webp" data-cap="Home page on a phone."><div class="phone"><img src="img/11-mobile-home.webp" width="780" height="1688" alt="Home page on a phone"></div></button>
+        <figcaption><b>Home</b></figcaption>
+      </figure>
+      <figure>
+        <button class="zoom" type="button" data-full="img/12-mobile-category.webp" data-cap="Category page on a phone."><div class="phone"><img src="img/12-mobile-category.webp" width="780" height="1688" alt="Category page on a phone"></div></button>
+        <figcaption><b>Category</b></figcaption>
+      </figure>
+      <figure>
+        <button class="zoom" type="button" data-full="img/13-mobile-review.webp" data-cap="Review page on a phone with the sticky Check Price bar."><div class="phone"><img src="img/13-mobile-review.webp" width="780" height="1688" alt="Review page on a phone"></div></button>
+        <figcaption><b>Review</b></figcaption>
+      </figure>
+      <figure>
+        <button class="zoom" type="button" data-full="img/14-mobile-menu.webp" data-cap="Menu on a phone with expandable subcategories."><div class="phone"><img src="img/14-mobile-menu.webp" width="780" height="1688" alt="Navigation menu on a phone"></div></button>
+        <figcaption><b>Menu</b></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="wrap" id="build">
+    <div class="sec-head">
+      <h2><span class="num">05</span>How it's built</h2>
+      <p>A standard Laravel structure (models, controllers, Blade views, migrations) with a few problems worth solving properly.</p>
+    </div>
+    <div class="notes">
+      <div class="note"><h3>Click tracking</h3><p>Every "Check Price" button goes through <code>/go/{product}</code>, which logs the click and its source, then adds the Amazon tracking ID if the link lacks one.</p></div>
+      <div class="note"><h3>One landing page model</h3><p>A polymorphic <code>landable</code> relation lets one table serve both product and category pages, with a pivot table for hand-picked, ranked products.</p></div>
+      <div class="note"><h3>Safe rich text</h3><p>Review articles are sanitised on the server with an allowlist of tags and attributes before they are stored, so pasted HTML can't inject scripts.</p></div>
+      <div class="note"><h3>Filters without reloads</h3><p>Filter links are ordinary URLs. JavaScript fetches the next page, swaps only the product list and updates the address bar, and the page still works without JavaScript.</p></div>
+      <div class="note"><h3>YouTube links in any form</h3><p>Watch, share, Shorts, embed and live links are parsed to a video ID. Videos load only when clicked, from the privacy-enhanced player.</p></div>
+      <div class="note"><h3>Data integrity</h3><p>Foreign keys stop a category being deleted while it still has products or subcategories, and removing a photo also deletes its file from disk.</p></div>
+    </div>
+    <div class="tables"><b>Tables</b><span>categories</span><span>products</span><span>product_images</span><span>product_videos</span><span>landing_pages</span><span>landing_page_product</span><span>clicks</span><span>settings</span></div>
+    <div class="stack">
+      <span>Laravel 12</span><span>PHP 8.3</span><span>MySQL / MariaDB</span><span>Eloquent ORM</span><span>Blade</span><span>Tailwind CSS 3</span><span>Alpine.js</span><span>Trix</span><span>XAMPP</span><span>Git &amp; GitHub</span>
+    </div>
+  </section>
+
+  <section class="wrap" style="border-top:0;padding-top:16px">
+    <div class="closing">
+      <div>
+        <span class="label">Want to see the code?</span>
+        <h2 style="margin-top:10px">The source is in a private GitHub repository.</h2>
+        <p>Send me your GitHub username and I'll give you access, or ask for a live walkthrough of the site and admin panel.</p>
+        <p style="margin-top:18px"><a href="../../#contact" style="color:var(--accent);font-weight:600">Get in touch &rarr;</a></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap">TopPick Reviews · project by Habeeb E Sadeed · all products shown are sample data.</footer>
+
+<dialog id="lightbox" aria-label="Enlarged screenshot">
+  <button class="close" type="button" id="lb-close">Close ✕</button>
+  <img id="lb-img" src="" alt="">
+  <p id="lb-cap"></p>
+</dialog>
+
+<script>
+(function () {
+  var dlg = document.getElementById('lightbox');
+  var img = document.getElementById('lb-img');
+  var cap = document.getElementById('lb-cap');
+  document.querySelectorAll('.zoom').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      img.src = btn.dataset.full;
+      img.alt = btn.dataset.cap || '';
+      cap.textContent = btn.dataset.cap || '';
+      if (dlg.showModal) dlg.showModal();
+    });
+  });
+  document.getElementById('lb-close').addEventListener('click', function () { dlg.close(); });
+  dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+})();
+</script>
+</body>
+</html>
